@@ -1,26 +1,58 @@
+arr = [];
+
 $(document).ready(function(){
-    
     $("#searchUser").keypress(function(e) {
         if(e.which == 13) {
-            if($("#searchUser").val() != "") listCards($("#searchUser").val());
+            $(".row").empty();
+            if($("#searchUser").val() != "") searchUser(getUser());
         }
     });
-      
-});
 
-function listCards(username){
-    $.ajax({
-        url: 'https://api.github.com/users/'+username
-    }).done(function(user){
-        console.log(user);
+    $(".dropdown-item").on('click', function(){
+        if($(this).attr('value') !== 'none')
+            languageFilter($(this).attr('value'), $("#searchUser").val());
+        else{
+            searchUser($("#searchUser").val());
+
+        }
     });
 
+});
+
+function getUser(){
+    return $('#searchUser').val();
+}
+
+function searchUser(username){
+    $('.row').empty();
     $.ajax({
         url: 'https://api.github.com/users/'+username+'/starred'
-    }).done(function(starred){
-        console.log(starred);
+    }).done(function(starred){        
         $(starred).each(function(index){
-            $(".row").append("<div class='col-md-4' id='" + starred[index].name + " " + starred[index].language + "'>"
+            buildCards(starred, index);
+        });
+    });    
+};
+
+function languageFilter(language, username){
+    $('.row').empty();
+    arr = [];
+    $.ajax({
+        url:  'https://api.github.com/users/'+username+'/starred'
+    }).done(function(starred){
+        arr = $.grep(starred, function(value){
+            return (value.language === language);
+        });
+        console.log(arr);
+        $(arr).each(function(index){
+            buildCards(arr, index);
+        });
+    });
+    
+}
+
+function buildCards(starred, index){
+    $(".row").append("<div class='col-md-4' id='" + starred[index].name + " " + starred[index].language + "'>"
                     +  "<div class='card' style='width: 18rem;'>"
                     +  "<div class='card-body'>"
                     +  "<h3 class='card-title'><b>" + starred[index].name + "</b></h3>" 
@@ -36,7 +68,6 @@ function listCards(username){
                     +  "<small class='text-muted'>" + starred[index].language + "</small>"
                     +    "</div>"
                     +"</div></div></div>"
-            )
-        });
-    });
+    );
+
 };

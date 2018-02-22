@@ -15,7 +15,8 @@
     <link href="css/style.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/3.0.1/css/primer.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.5.0/octicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.5.0/octicons.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js"></script>
   </head>
 
   <body>
@@ -37,11 +38,43 @@
           <h1 class="jumbotron-heading">GitHub favorite finders</h1>
           <p class="lead text-muted">Look for all the starred projects of a public user</p>
           <input type="text" id="searchUser" class="form-control" placeholder="GitHub name...">
+        
+            <div class="btn-group col-md-4">
+                <button id="btnFilter" class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Filter by
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" value="name">Repository Name</a>
+                    <a class="dropdown-item" value="stars">Stars</a>
+                    <a class="dropdown-item" value="issues">Open Issues</a>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button id="btn-language" class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Language
+                </button>
+                <div class="dropdown-menu" id="dropdownLanguages">
+                        <a class="dropdown-item" value="JavaScript">JavaScript</a>
+                        <a class="dropdown-item" value="PHP">PHP</a>
+                        <a class="dropdown-item" value="Shell">Shell</a>
+                        <a class="dropdown-item" value="Assembly">Assembly</a>
+                        <a class="dropdown-item" value="Rust">Rust</a>
+                        <a class="dropdown-item" value="Go">Go</a>
+                        <a class="dropdown-item" value="Ruby">Ruby</a>
+                        <a class="dropdown-item" value="Vim script">Vim script</a>
+                        <a class="dropdown-item" value="none">None</a>
+                </div>
+            </div>
         </div>
+
+        
       </section>
 
       <div class="album py-5 bg-light">
         <div class="container">
+               
+                
 
           <div class="row"></div>
 
