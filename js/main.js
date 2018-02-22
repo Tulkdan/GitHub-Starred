@@ -1,5 +1,3 @@
-arr = [];
-
 $(document).ready(function(){
     $("#searchUser").keypress(function(e) {
         if(e.which == 13) {
@@ -8,12 +6,16 @@ $(document).ready(function(){
         }
     });
 
-    $(".dropdown-item").on('click', function(){
+    $('.filter').on('click', function(){
+        orderBy($('#searchUser').val(), $(this).attr('value'));
+    });
+
+
+    $(".language").on('click', function(){
         if($(this).attr('value') !== 'none')
-            languageFilter($(this).attr('value'), $("#searchUser").val());
+            languageFilter($("#searchUser").val(), $(this).attr('value'));
         else{
             searchUser($("#searchUser").val());
-
         }
     });
 
@@ -34,7 +36,32 @@ function searchUser(username){
     });    
 };
 
-function languageFilter(language, username){
+function orderBy(username, orderer){
+    $('.row').empty();
+    $.ajax({
+        url: 'https://api.github.com/users/'+username+'/starred'
+    }).done(function(data){
+        if(orderer === 'name'){
+            data.sort(function(a, b){
+                return a.name > b.name ? 1 : -1;
+            });
+        } else if(orderer === 'stargazers_count'){
+            data.sort(function(a, b){
+                return a.stargazers_count > b.stargazers_count ? 1 : -1;
+            });
+        } else {
+            data.sort(function(a, b){
+                return a.open_issues > b.open_issues ? 1 : -1;
+            });
+        }
+
+        $(data).each(function(index){
+            buildCards(data, index);
+        });
+    });
+}
+
+function languageFilter(username, language){
     $('.row').empty();
     arr = [];
     $.ajax({
