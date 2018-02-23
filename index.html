@@ -40,18 +40,19 @@
           <input type="text" id="searchUser" class="form-control" placeholder="GitHub name...">
         
             <div class="btn-group col-md-4">
-                <button id="btnFilter" class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button id="btnFilter" class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="none">
                     Filter by
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item filter" value="name">Repository Name</a>
                     <a class="dropdown-item filter" value="stargazers_count">Stars</a>
                     <a class="dropdown-item filter" value="open_issues">Open Issues</a>
+                    <a class="dropdown-item filter" value="none">None</a>
                 </div>
             </div>
 
             <div class="btn-group">
-                <button id="btn-language" class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button id="btn-language" class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="none">
                     Language
                 </button>
                 <div class="dropdown-menu" id="dropdownLanguages">

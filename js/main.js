@@ -2,21 +2,38 @@ $(document).ready(function(){
     $("#searchUser").keypress(function(e) {
         if(e.which == 13) {
             $(".row").empty();
-            if($("#searchUser").val() != "") searchUser(getUser());
+            if($("#searchUser").val() != "") searchUser();
         }
     });
 
     $('.filter').on('click', function(){
-        orderBy($('#searchUser').val(), $(this).attr('value'));
+        $('#btnFilter').text($(this).text());
+        $('#btnFilter').attr('value', $(this).attr('value'));
+        if($(this).attr('value') === 'none')
+            if($('#btn-language').attr('value') === 'none')
+                searchUser();
+            else
+                languageFilter($('#btn-language').attr('value'));
+        else if($('#btn-language').attr('value') === 'none')
+            orderBy($(this).attr('value'));
+        else
+            filterBoth($(this).attr('value'), $('#btn-language').attr('value'));
     });
 
 
     $(".language").on('click', function(){
-        if($(this).attr('value') !== 'none')
-            languageFilter($("#searchUser").val(), $(this).attr('value'));
-        else{
-            searchUser($("#searchUser").val());
-        }
+        $('#btn-language').text($(this).text());
+        $('#btn-language').attr('value', $(this).attr('value'));
+        if($(this).attr('value') === 'none')
+            if($('#btnFilter').attr('value') === 'none')
+                searchUser();
+            else
+                orderBy($('#btnFilter').attr('value'));
+        else if($('#btnFilter').attr('value') === 'none')
+            languageFilter($(this).attr('value'));
+        else
+            filterBoth($('#btnFilter').attr('value'), $(this).attr('value'));
+        
     });
 
 });
@@ -25,10 +42,10 @@ function getUser(){
     return $('#searchUser').val();
 }
 
-function searchUser(username){
+function searchUser(){
     $('.row').empty();
     $.ajax({
-        url: 'https://api.github.com/users/'+username+'/starred'
+        url: 'https://api.github.com/users/'+getUser()+'/starred'
     }).done(function(starred){        
         $(starred).each(function(index){
             buildCards(starred, index);
@@ -36,10 +53,10 @@ function searchUser(username){
     });    
 };
 
-function orderBy(username, orderer){
+function orderBy(orderer){
     $('.row').empty();
     $.ajax({
-        url: 'https://api.github.com/users/'+username+'/starred'
+        url: 'https://api.github.com/users/'+getUser()+'/starred'
     }).done(function(data){
         if(orderer === 'name'){
             data.sort(function(a, b){
@@ -61,21 +78,51 @@ function orderBy(username, orderer){
     });
 }
 
-function languageFilter(username, language){
+function languageFilter(language){
     $('.row').empty();
     arr = [];
     $.ajax({
-        url:  'https://api.github.com/users/'+username+'/starred'
+        url:  'https://api.github.com/users/'+getUser()+'/starred'
     }).done(function(starred){
         arr = $.grep(starred, function(value){
             return (value.language === language);
         });
-        console.log(arr);
         $(arr).each(function(index){
             buildCards(arr, index);
         });
     });
-    
+}
+
+function filterBoth(orderer, language){
+    $('.row').empty();
+    $.ajax({
+        url: 'https://api.github.com/users/'+getUser()+'/starred'
+    }).done(function(data){
+        if(orderer === 'name'){
+            data.sort(function(a, b){
+                return a.name > b.name ? 1 : -1;
+            });
+        } else if(orderer === 'stargazers_count'){
+            data.sort(function(a, b){
+                return a.stargazers_count > b.stargazers_count ? 1 : -1;
+            });
+        } else {
+            data.sort(function(a, b){
+                return a.open_issues > b.open_issues ? 1 : -1;
+            });
+        }
+
+        arr = $.grep(data, function(value){
+            return (value.language === language);
+        });
+
+
+        $(arr).each(function(index){
+            buildCards(arr, index);
+        });
+
+
+    });
 }
 
 function buildCards(starred, index){
