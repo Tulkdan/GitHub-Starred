@@ -13,4 +13,4 @@ You can simply open the index.html on any browser.
 
 ## Authors
 
-* **Pedro Correa** *
+* **Pedro Correa**
