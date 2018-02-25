@@ -1,6 +1,6 @@
 # GitHub-Starred
 
-This project is made for this contesthttps://test-shop.escale.com.br/starred
+This project is made for this [contest](https://test-shop.escale.com.br/starred)
 
 ## Getting Started
 
