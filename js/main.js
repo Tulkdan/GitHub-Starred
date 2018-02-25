@@ -6,6 +6,7 @@ $(document).ready(function(){
         }
     });
 
+    // Value selected on btnFilter
     $('.filter').on('click', function(){
         // Change the text and value of the button with dropdown's item
         $('#btnFilter').text($(this).text());
@@ -14,7 +15,7 @@ $(document).ready(function(){
         // Check to see if the filter's value and orderer's value
         if($(this).attr('value') === 'none')    // Check if the btnFilter isn't set
             if($('#btn-language').attr('value') === 'none')
-                searchUser();       // Case none of the are set
+                searchUser();       // Case none of them aren't set
             else
                 languageFilter($('#btn-language').attr('value'));
         else if($('#btn-language').attr('value') === 'none')    // Check if the btn-language isn't set
@@ -23,7 +24,7 @@ $(document).ready(function(){
             filterBoth($(this).attr('value'), $('#btn-language').attr('value'));    // Case both are set
     });
 
-
+    // Value selected on btn-language
     $(".language").on('click', function(){
         // Change the text and value of the button with dropdown's item
         $('#btn-language').text($(this).text());
@@ -32,7 +33,7 @@ $(document).ready(function(){
         // Check to see if the filter value and orderer value
         if($(this).attr('value') === 'none')    // Check if the btn-language isn't set
             if($('#btnFilter').attr('value') === 'none')    
-                searchUser();       // Case none of them are set
+                searchUser();       // Case none of them aren't set
             else
                 orderBy($('#btnFilter').attr('value'));
         else if($('#btnFilter').attr('value') === 'none')   // Check if the btnFilter isn't set
@@ -44,13 +45,15 @@ $(document).ready(function(){
 
 });
 
-// Get's the name of the user on input
+// Gets the name of the user on input
 function getUser(){
     return $('#searchUser').val();
 }
 
 // Function to return every starred project from the user
 function searchUser(){
+    $('#btnFilter').attr('value', 'none'); $('#btnFilter').text('Filter by');
+    $('#btn-language').attr('value', 'none'); $('#btn-language').text('Language');
     $('.row').empty();
     $.ajax({
         url: 'https://api.github.com/users/'+getUser()+'/starred'
@@ -106,7 +109,7 @@ function languageFilter(language){
     });
 }
 
-// Function to filter using both, filters and order
+// Function to filter and order
 function filterBoth(orderer, language){
     $('.row').empty();
     $.ajax({
