@@ -1,164 +1,186 @@
-$(document).ready(function(){
-    $("#searchUser").keypress(function(e) {
-        if(e.which == 13) {
-            $(".row").empty();  // Clean cards case new user is searched
-            if($("#searchUser").val() != "") searchUser();
-        }
-    });
+let search = document.querySelector('#searchUser');
+let row = document.querySelector('.row');
+let filters = document.querySelectorAll('.filter');
+let btn_filter = document.querySelector('#btnFilter');
+let languages = document.querySelectorAll('.language');
+let btn_language = document.querySelector('#btn-language');
 
-    // Value selected on btnFilter
-    $('.filter').on('click', function(){
-        // Change the text and value of the button with dropdown's item
-        $('#btnFilter').text($(this).text());
-        $('#btnFilter').attr('value', $(this).attr('value'));
+search.addEventListener('keydown', (e) => {
+  if (e.keyCode === 13) {
+    while (row.firstChild) row.removeChild(row.firstChild);
 
-        // Check to see if the filter's value and orderer's value
-        if($(this).attr('value') === 'none')    // Check if the btnFilter isn't set
-            if($('#btn-language').attr('value') === 'none')
-                searchUser();       // Case none of them aren't set
-            else
-                languageFilter($('#btn-language').attr('value'));
-        else if($('#btn-language').attr('value') === 'none')    // Check if the btn-language isn't set
-            orderBy($(this).attr('value'));
-        else
-            filterBoth($(this).attr('value'), $('#btn-language').attr('value'));    // Case both are set
-    });
-
-    // Value selected on btn-language
-    $(".language").on('click', function(){
-        // Change the text and value of the button with dropdown's item
-        $('#btn-language').text($(this).text());
-        $('#btn-language').attr('value', $(this).attr('value'));
-
-        // Check to see if the filter value and orderer value
-        if($(this).attr('value') === 'none')    // Check if the btn-language isn't set
-            if($('#btnFilter').attr('value') === 'none')    
-                searchUser();       // Case none of them aren't set
-            else
-                orderBy($('#btnFilter').attr('value'));
-        else if($('#btnFilter').attr('value') === 'none')   // Check if the btnFilter isn't set
-            languageFilter($(this).attr('value'));
-        else
-            filterBoth($('#btnFilter').attr('value'), $(this).attr('value'));   // Case both are set
-        
-    });
-
+    if (search.value != '')
+      searchUser();
+  }
 });
 
-// Gets the name of the user on input
-function getUser(){
-    return $('#searchUser').val();
-}
+filters.forEach( (element) => {
+  element.addEventListener('click', (el) => {
+    // Change the text and value of the button
+    btn_filter.innerText = el.target.innerText;
+    btn_filter.value = el.target.attributes[1].value;
+
+    // Check to see if the filter's value and orderer's value
+    if (el.target.attributes[1].value === 'none') {
+      if (btn_language.value === 'none')
+        searchUser(); // Case none of them are set
+      else
+        languageFilter(btn_language.value);
+    } else if (btn_language.value === 'none') // Check if btn-language isn't set
+      orderBy(el.target.attributes[1].value);
+    else
+      filterBoth(el.target.attributes[1].value, btn_language.value); // Case both are set
+  });
+});
+
+languages.forEach( (element) => {
+  element.addEventListener('click', (el) => {
+    btn_language.innerText = el.target.innerText;
+    btn_language.value = el.target.attributes[1].value;
+
+    if (el.target.attributes[1].value === 'none') {
+      if (btn_filter.value === 'none')
+        searchUser();
+      else
+        orderBy(btn_filter.value);
+    } else if (btn_filter.value === 'none')
+      languageFilter(el.target.attributes[1].value);
+    else
+      filterBoth(btn_filter.value, el.target.attributes[1].value);
+  });
+});
 
 // Function to return every starred project from the user
 function searchUser(){
-    $('#btnFilter').attr('value', 'none'); $('#btnFilter').text('Filter by');
-    $('#btn-language').attr('value', 'none'); $('#btn-language').text('Language');
-    $('.row').empty();
-    $.ajax({
-        url: 'https://api.github.com/users/'+getUser()+'/starred'
-    }).done(function(starred){        
-        $(starred).each(function(index){
-            buildCards(starred, index);
-        });
-    });    
-};
+  btn_filter.value = 'none'; btn_filter.innerText = 'Filter by';
+  btn_language.value = 'none'; btn_language.innerText = 'Language';
+  while (row.firstChild) row.removeChild(row.firstChild);
+
+  fetch('https://api.github.com/users/' + search.value + '/starred')
+    .then( (starred) => starred.json())
+    .then( (data) => {
+      data.forEach( (el) => {
+        buildCards(el);
+      });
+    });
+}
 
 // Function to order the cards
 function orderBy(orderer){
-    $('.row').empty();
-    $.ajax({
-        url: 'https://api.github.com/users/'+getUser()+'/starred'
-    }).done(function(data){
-        // Checking to see by which will be ordered
-        if(orderer === 'name'){
-            data.sort(function(a, b){
-                return a.name > b.name ? 1 : -1;
-            });
-        } else if(orderer === 'stargazers_count'){
-            data.sort(function(a, b){
-                return a.stargazers_count > b.stargazers_count ? 1 : -1;
-            });
-        } else {
-            data.sort(function(a, b){
-                return a.open_issues > b.open_issues ? 1 : -1;
-            });
-        }
+  while (row.firstChild) row.removeChild(row.firstChild);
 
-        $(data).each(function(index){
-            buildCards(data, index);
-        });
+  fetch('http://api.github.com/users/' + search.value + '/starred')
+    .then( (starred) => starred.json())
+    .then( (data) => {
+      if (orderer === 'name') {
+        data.sort( (a,b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
+      } else if (orderer === 'stargazers_count') {
+        data.sort( (a,b) => (a.stargazers_count > b.stargazers_count) ? 1 : -1);
+      } else {
+        data.sort( (a,b) => (a.open_issues > b.open_issues) ? 1 : -1);
+      }
+      return data;
+    }).then( (filtered) => {
+      filtered.forEach( (el) => {
+        buildCards(el);
+      });
     });
 }
 
 // Filter the repos languages
 function languageFilter(language){
-    $('.row').empty();
-    arr = [];
-    $.ajax({
-        url:  'https://api.github.com/users/'+getUser()+'/starred'
-    }).done(function(starred){
-        // It cleans returned object from the request and creates a new array with filteres repos
-        arr = $.grep(starred, function(value){
-            return (value.language === language);
-        });
+  while (row.firstChild) row.removeChild(row.firstChild);
 
-        $(arr).each(function(index){
-            buildCards(arr, index);
-        });
+  fetch('https://api.github.com/users/' + search.value + '/starred')
+    .then( (starred) => starred.json())
+    .then( (data) => {
+      let arr = data.filter( (d) => {
+        return d.language === language
+      });
+      return arr;
+    }).then( (filtered) => {
+      filtered.forEach( (el) => {
+        buildCards(el);
+      });
     });
 }
 
 // Function to filter and order
 function filterBoth(orderer, language){
-    $('.row').empty();
-    $.ajax({
-        url: 'https://api.github.com/users/'+getUser()+'/starred'
-    }).done(function(data){
-        // Checking to see by which will be ordered
-        if(orderer === 'name'){
-            data.sort(function(a, b){
-                return a.name > b.name ? 1 : -1;
-            });
-        } else if(orderer === 'stargazers_count'){
-            data.sort(function(a, b){
-                return a.stargazers_count > b.stargazers_count ? 1 : -1;
-            });
-        } else {
-            data.sort(function(a, b){
-                return a.open_issues > b.open_issues ? 1 : -1;
-            });
-        }
+  while (row.firstChild) row.removeChild(row.firstChild);
 
-        // It cleans returned object from the request and creates a new array with filteres repos
-        arr = $.grep(data, function(value){
-            return (value.language === language);
-        });
-
-        $(arr).each(function(index){
-            buildCards(arr, index);
-        });
+  fetch('https://api.github.com/users/' + search.value + '/starred')
+    .then( (starred) => starred.json())
+    .then( (data) => {
+      if (orderer === 'name') {
+        data.sort( (a,b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1)
+      } else if (orderer === 'stargazers_count') {
+        data.sort( (a,b) => (a.stargazers_count > b.stargazers_count) ? 1 : -1)
+      } else {
+        data.sort( (a,b) => (a.open_issues > b.open_issues) ? 1 : -1)
+      }
+      return data;
+    }).then( (arr) => {
+      return arr.filter( (d) => d.language === language)
+    }).then( (filtered) => {
+      filtered.forEach( (el) => {
+        buildCards(el);
+      });
     });
 }
 
 // Function to create the cards
-function buildCards(starred, index){
-    $(".row").append("<div class='col-md-4' id='" + starred[index].name + " " + starred[index].language + "'>"
-                    +  "<div class='card' style='width: 18rem;'>"
-                    +  "<div class='card-body'>"
-                    +  "<h3 class='card-title'><b>" + starred[index].name + "</b></h3>" 
-                    +  "<h6 class='card-subtitle mb-2 text-muted'>" + starred[index].owner.login + "</h6>"
-                    +  "<p class='card-text'>" + starred[index].description + "</p>"
-                    +  "<p>"
-                    +  "<div class='d-inline octicon octicon-star badge badge-pill badge-danger'> " + starred[index].stargazers_count + "</div>  "
-                    +  "<div class='d-inline octicon octicon-issue-opened badge badge-pill badge-primary'> " + starred[index].open_issues + "</div>"
-                    +  "</p>"
-                    +  "<div class='d-flex justify-content-between align-items-center'>"
-                    +  "<div class='btn-group'>"
-                            + "<a href='" + starred[index].html_url + "'><button type='button' class='btn btn-sm btn-outline-secondary'>View</button></a>"
-                    +  "</div>"
-                    +  "<small class='text-muted'>" + starred[index].language + "</small>"
-                    +    "</div>"
-                    +"</div></div></div>"
-    );
+function buildCards(index){
+  let card = document.createElement('div');
+  card.className = 'card';
+  card.style.width = '18rem';
+  let card_body = document.createElement('div');
+  card_body.className = 'card-body';
+    let title = document.createElement('h3');
+    title.className = 'card-title';
+    title.innerHTML = '<b>' + index.name + '</b>';
+  card_body.appendChild(title);
+    let sub_title = document.createElement('h6');
+    sub_title.className = 'card-subtitle mb-2 text-muted';
+    sub_title.innerText = index.owner.login;
+  card_body.appendChild(sub_title);
+    let card_text = document.createElement('p');
+    card_text.className = 'card-text';
+    card_text.innerText = index.description;
+  card_body.appendChild(card_text);
+    let badges = document.createElement('p');
+      let badge1 = document.createElement('div');
+      badge1.className = 'd-inline octicon octicon-star badge badge-pill badge-danger';
+      badge1.innerText = index.stargazers_count;
+    badges.appendChild(badge1);
+      let badge2 = document.createElement('div');
+      badge2.className = 'd-inline octicon octicon-issue-opened badge badge-pill badge-primary';
+      badge2.innerText = index.open_issues;
+    badges.appendChild(badge2);
+  card_body.appendChild(badges);
+    let div_flex = document.createElement('div');
+    div_flex.className = 'd-flex justify-content-between align-items-center';
+      let btn_group = document.createElement('div');
+      btn_group.className = 'btn-group';
+        let a = document.createElement('a');
+        a.href = index.html_url;
+        let btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm btn-outline-secondary';
+        btn.innerText = 'View';
+        a.appendChild(btn);
+      btn_group.appendChild(a);
+    div_flex.appendChild(btn_group);
+      let small = document.createElement('small');
+      small.className = 'text-muted';
+      small.innerText = index.language;
+    div_flex.appendChild(small);
+  card_body.appendChild(div_flex);
+  card.appendChild(card_body);
+  let div_Master = document.createElement('div');
+  div_Master.className = 'col-md-4';
+  div_Master.id = index.name + '_' + index.language;
+  div_Master.appendChild(card);
+
+  row.appendChild(div_Master);
 };
