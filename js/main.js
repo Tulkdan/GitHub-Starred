@@ -69,7 +69,7 @@ function searchUser(){
 function orderBy(orderer){
   while (row.firstChild) row.removeChild(row.firstChild);
 
-  fetch('http://api.github.com/users/' + search.value + '/starred')
+  fetch('https://api.github.com/users/' + search.value + '/starred')
     .then( (starred) => starred.json())
     .then( (data) => {
       if (orderer === 'name') {
