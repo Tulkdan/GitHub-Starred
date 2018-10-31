@@ -55,6 +55,7 @@ function searchUser(){
     $('#btnFilter').attr('value', 'none'); $('#btnFilter').text('Filter by');
     $('#btn-language').attr('value', 'none'); $('#btn-language').text('Language');
     $('.row').empty();
+    
     $.ajax({
         url: 'https://api.github.com/users/'+getUser()+'/starred'
     }).done(function(starred){        
